@@ -46,12 +46,31 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
     # +++your code here+++
-    return
+    solution = []
+    names = ''
+    babynames_dict = {}
+    f = open(filename , 'rU')
+    text = f.read()
+    year = re.search(r'Popularity\sin\s(\d\d\d\d)', text)
+    babyname = re.findall( r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', text)
+    for names in babyname:
+        rank, boy, girl = names
+        if boy not in babynames_dict:
+            babynames_dict[boy] = rank
+        if girl not in babynames_dict:
+            babynames_dict[girl] = rank
+    sorted_names = sorted(babynames_dict)
+    for names in sorted_names:
+        solution.append('{} {}'.format(names, babynames_dict[names]))
+    solution.insert(0, year.group(1))
+    return solution
+
+  
 
 
 def create_parser():
     """Create a cmd line parser object with 2 argument definitions"""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description = 'search for baby name ranking in each year')
     parser.add_argument(
         '--summaryfile', help='creates a summary file', action='store_true')
     # The nargs option instructs the parser to expect 1 or more filenames.
@@ -73,6 +92,16 @@ def main():
     # option flag
     create_summary = args.summaryfile
 
+    if create_summary:
+        for filename in file_list:
+            mylist = extract_names(filename)
+            result = '\n'.join(mylist) + '\n'
+            with open(filename + '.summary', 'w') as f:
+                f.write(result)
+    else:
+        for filename in file_list:
+            mylist = extract_names(filename)
+            print(mylist)
     # +++your code here+++
     # For each filename, get the names, then either print the text output
     # or write it to a summary file
